@@ -1,4 +1,5 @@
 import CategoryTheory.Basics
+import CategoryTheory.Constructions
 
 structure Monoid where
   U : Type _
@@ -15,7 +16,15 @@ structure Group extends Monoid where
   leftInv : ∀ a : U, op (inv a) a = e
   rightInv : ∀ a : U, op a (inv a) = e
 
-open CategoryTheory in
+structure AbelianGroup extends Group where
+  opComm : ∀ a b : U, op a b = op b a
+
+structure Group.Homomorphism (G H : Group) where
+  ϕ : G.U → H.U
+  homomorphism : ∀ {g h : G.U}, ϕ (G.op g h) = H.op (ϕ g) (ϕ h)
+
+namespace CategoryTheory
+
 def MonoidCategory (M : Monoid) : Category :=
   {
     ob := Unit,
@@ -28,7 +37,6 @@ def MonoidCategory (M : Monoid) : Category :=
     rightId := by intros; simp [M.rightId]
   }
 
-open CategoryTheory in
 def GroupCategory (G : Group) : Category :=
   {
     ob := Unit,
@@ -41,6 +49,36 @@ def GroupCategory (G : Group) : Category :=
     rightId := by intros; simp [G.rightId]
   }
 
+def Grp : Category :=
+  {
+    ob := Group,
+    hom := Group.Homomorphism,
+    id := ⟨id, rfl⟩,
+    comp := λ ⟨ϕ, homϕ⟩ ⟨ψ, homψ⟩ => ⟨ψ ∘ ϕ, by simp [homϕ, homψ]⟩,
+
+    compAssoc := by intros; rfl,
+    leftId := by intros; rfl,
+    rightId := by intros; rfl
+  }
+
+def AbGrp : Category :=
+  {
+    ob := AbelianGroup
+    hom := λ A B => Group.Homomorphism (A.toGroup) (B.toGroup),
+    id := ⟨id, rfl⟩,
+    comp := λ ⟨ϕ, homϕ⟩ ⟨ψ, homψ⟩ => ⟨ψ ∘ ϕ, by simp [homϕ, homψ]⟩,
+
+    compAssoc := by intros; rfl,
+    leftId := by intros; rfl,
+    rightId := by intros; rfl
+
+  }
+
+-- the category of G-modules
+def GMod (G : Group) : Category := FunctorCategory (GroupCategory G) AbGrp
+
+end CategoryTheory
+
 structure Poset where
   P : Type _
   rel : P → P → Bool
@@ -50,7 +88,7 @@ structure Poset where
   trans : ∀ {a b c : P}, rel a b → rel b c → rel a c
 
 open CategoryTheory in
-def Δ : Category :=
+def Δ : Category := -- the simplex category
   {
     ob := Σ n : Nat, Fin (Nat.succ n)
     hom := λ ⟨m, fₘ⟩ ⟨n, fₙ⟩ => {ϕ : Fin m.succ → Fin n.succ // ∀ {a b}, a ≤ b → ϕ a ≤ ϕ b},
