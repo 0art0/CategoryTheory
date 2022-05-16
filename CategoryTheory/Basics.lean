@@ -82,4 +82,10 @@ def NaturalTransformation.comp {C D : Category} {F G H : Functor C D}
   commutingSquare := by intros; simp; rw [D.compAssoc, ← η₁.commutingSquare, ← D.compAssoc, η₂.commutingSquare, D.compAssoc]
 }
 
+structure Iso (A : Type _) (B : Type _) where
+  fwd : A → B
+  bck : B → A
+  fstId : bck ∘ fwd = id
+  sndId : fwd ∘ bck = id
+
 end CategoryTheory

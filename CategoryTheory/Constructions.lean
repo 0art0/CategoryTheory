@@ -58,7 +58,7 @@ def _Hom {C : Category} (A : C.ob) : Functor (dual C) Typ :=
         show C.comp (C.comp _ _) _ = Typ.comp (λ g => C.comp _ g) (λ g => C.comp _ g) _; rw [← C.compAssoc]; rfl
   }
 
-def FunctorCategory {C D : Category} : Category :=
+def FunctorCategory (C D : Category) : Category :=
   {
     ob := Functor C D,
     hom := NaturalTransformation,
