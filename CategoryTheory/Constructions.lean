@@ -74,4 +74,16 @@ def FunctorCategory (C D : Category) : Category :=
       simp [NaturalTransformation.Id, NaturalTransformation.comp]; apply funext; intro; rw [D.rightId]
   }
 
+def GrothedieckConstruction (C : Category) (F : Functor C Cat) : Category :=
+  {
+    ob := Σ (c : C.ob), (F.Θ c).ob
+    hom := fun ⟨c, x⟩ ⟨d, y⟩ => Σ (f : C.hom c d), (F.Θ d).hom ((F.ϕ f).Θ x) y
+    id := ⟨C.id, (Functor.idMap _) ▸ (Category.id _)⟩
+    comp := fun ⟨α, f⟩ ⟨β, g⟩ => ⟨C.comp α β, (Functor.compMap _ α β) ▸ (F.Θ _).comp ((F.ϕ β).ϕ f) g⟩
+
+    compAssoc := sorry
+    leftId := sorry
+    rightId := sorry
+  }
+
 end CategoryTheory
